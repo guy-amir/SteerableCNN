@@ -105,8 +105,10 @@ class DirectModel:
         return images
 
     def get_samples_as_images(self):
-        print("get_samples_as_images is not supported.")
-        return -1
+        n_samples = self.samples.shape[1]
+        samples = np.zeros((self.image_height, self.image_height, n_samples)).astype('complex')
+        samples[self.get_points_inside_the_circle(), :] = self.samples
+        return samples
 
     def get_angular_frequency(self):
         return self.angular_frequency

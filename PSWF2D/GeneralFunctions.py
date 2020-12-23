@@ -6,13 +6,13 @@ import time
 
 
 def pswf_2d(big_n, n, bandlimit, phi_approximate_error, x, w):
-    tic0 = time.clock()
+    tic0 = time.process_time()
     # x, w = leggauss_0_1(20 * n)
 
-    tic1 = time.clock()
+    tic1 = time.process_time()
     d_vec, approx_length, range_array = pswf_2d_minor_computations(big_n, n, bandlimit, phi_approximate_error)
 
-    tic2 = time.clock()
+    tic2 = time.process_time()
     t1 = 1 - 2 * np.square(x)
     t2 = np.sqrt(2 * (2 * range_array + big_n + 1))
 
@@ -21,20 +21,20 @@ def pswf_2d(big_n, n, bandlimit, phi_approximate_error, x, w):
         np.column_stack((np.zeros(len(x)), p_n(approx_length - 2, big_n + 1, 1, t1))) +\
         (big_n + 0.5) * np.outer(np.power(x, big_n - 0.5), t2) * p_n(approx_length - 1, big_n, 0, t1)
 
-    tic3 = time.clock()
+    tic3 = time.process_time()
     phi = t_x_mat(x, big_n, range_array, approx_length).dot(d_vec[:, :(n + 1)])
     phi_derivatives = t_x_derivative_mat.dot(d_vec[:, :(n + 1)])
 
-    tic4 = time.clock()
+    tic4 = time.process_time()
     max_phi_idx = np.argmax(np.absolute(phi[:, 0]))
     max_phi_val = phi[max_phi_idx, 0]
     x_for_calc = x[max_phi_idx]
 
-    tic5 = time.clock()
+    tic5 = time.process_time()
     right_hand_side_integral = np.einsum('j, j, j ->', w, k_operator(big_n, bandlimit * x_for_calc * x), phi[:, 0])
     lambda_n_1 = right_hand_side_integral / max_phi_val
 
-    tic6 = time.clock()
+    tic6 = time.process_time()
     # upper_integral_values = np.diag((temp_calc * phi_derivatives[:, :-1]).transpose().dot(phi[:, 1:]))
     # lower_integral_values = np.diag((temp_calc * phi[:, :-1]).transpose().dot(phi_derivatives[:, 1:]))
 
@@ -42,12 +42,12 @@ def pswf_2d(big_n, n, bandlimit, phi_approximate_error, x, w):
     upper_integral_values = np.einsum('j, ji, ji -> i', temp_calc, phi_derivatives[:, :-1], phi[:, 1:])
     lower_integral_values = np.einsum('j, ji, ji -> i', temp_calc, phi[:, :-1], phi_derivatives[:, 1:])
 
-    tic7 = time.clock()
+    tic7 = time.process_time()
     lambda_n = np.append(np.reshape(lambda_n_1, (1, 1)), (
             lambda_n_1 * np.cumprod(upper_integral_values / lower_integral_values).reshape((n, 1))))
     alpha_n = lambda_n * 2 * np.pi * (np.power(1j, big_n) / np.sqrt(bandlimit))
 
-    tic8 = time.clock()
+    tic8 = time.process_time()
 
     # full_time = tic8 - tic0
     # print('leggauss time {}'.format((tic1 - tic0)/full_time))
